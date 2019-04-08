@@ -53,24 +53,24 @@ int main( int argc, char **argv ){
 	 *			Carregar shaders
 	 */
 	float firstTriangle[] = {
-		-0.5f, -0.2f, 0.0f,		//left
-		-0.0f, -0.1f, 0.0f,		//right
-		-0.45f, -0.5f, 0.0f		//top
+		0.0f, 0.0f, 0.0f,		//left
+		0.5f, 0.0f, 0.0f,		//right
+		0.25f, -0.2f, 0.0f		//top
 	};
 	float secondTriagle[] = {
-		0.0f, -0.5f, 0.0f,		//left
-		0.9f, -0.5f, 0.0f,		//right
-		0.45f, 0.5f, 0.0f		//top
+		0.0f, 0.0f, 0.0f,		//top
+		-0.2f, -0.25f, 0.0f,	//left
+		0.0f, -0.5f, 0.0f		//bottom
 	};
 	float thirdTriangle[] = {
-		-0.9f, -0.5f, 0.0f,		//left
-		-0.45f, 0.5f, 0.0f,		//right
-		-0.0f, -0.5f, 0.0f		//top
+		0.0f, 0.0f, 0.0f,		//right
+		-0.25f, 0.2f, 0.0f,		//top
+		-0.5f, 0.0f, 0.0f		//left
 	};
 	float fourthTriagle[] = {
-		0.45f, 0.5f, 0.0f,		//left
-		0.9f, -0.5f, 0.0f,		//right
-		0.0f, -0.5f, 0.0f		//top
+		0.0f, 0.0f, 0.0f,		//bottom
+		0.2f, 0.25f, 0.0f,		//right
+		0.0f, 0.5f, 0.0f		//top
 	};
 
 	// build and compile shader programs
