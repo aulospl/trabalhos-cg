@@ -12,7 +12,7 @@ void processInput(GLFWwindow *window, int *x, int *y, int *a, bool *rotate);
 int main( int argc, char **argv ){
 	int x, y, a;
 	bool rotate = true;
-	
+
 	// Posição e velocidade iniciais
 	x = 512;
 	y = 384;
@@ -21,9 +21,9 @@ int main( int argc, char **argv ){
 	// Inicializando glfw e configurando contexto
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	
+
 	GLFWwindow *window = glfwCreateWindow(1024, 768, "Trabalho 1", NULL, NULL);
 	if(window == NULL){
 		cout << "Failed to create GLFW Window" << endl;
@@ -32,7 +32,7 @@ int main( int argc, char **argv ){
 	}
 
 	glfwMakeContextCurrent(window);
-	
+
 
 	// Inicializando glad
 	if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
@@ -42,10 +42,10 @@ int main( int argc, char **argv ){
 
 	// Cria viewport
 	glViewport(0, 0, 1024, 768);
-	
+
 	// Configura função de callback para redimencionar viewport
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	
+
 	/*
 	 * TODO:
 	 *			Definir vertices dos triangulos
@@ -75,52 +75,13 @@ int main( int argc, char **argv ){
 
 	// build and compile shader programs
 	// ---------------------------------
-	// vertex shader
-	char * vshader = readShader("vtx_shader.glsl");
-	int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vshader, NULL);
-	glCompileShader(vertexShader);
-	// Check for shader compile errors
-	int success;
-	char infolog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if(!success){
-		glGetShaderInfoLog(vertexShader, 512, NULL, infolog);
-		cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infolog << endl;
-		return -3;
-	}
-	// fragment shader
-	char * fshader = readShader("frag_shader.glsl");
-	int fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragShader, 1, &fshader, NULL);
-	glCompileShader(fragShader);
-	// Check shader compile error
-	glGetShaderiv(fragShader, GL_COMPILE_STATUS, &success);
-	if(!success){
-		glGetShaderInfoLog(fragShader, 512, NULL, infolog);
-		cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infolog << endl;
-		return -4;
-	}
-	
-	// link shaders
-	int shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragShader);
-	glLinkProgram(shaderProgram);
+	ShaderProgram prog("vtx_shader.glsl", "frag_shader.glsl");
 
-	// check linking errors
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if(!success){
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infolog);
-		cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infolog << endl;
-		return -5;
-	}	
-	
 	// Set VBO and VAOs and bind to triangles
 	unsigned int VBOs[4], VAOs[4];
 	glGenVertexArrays(4, VAOs);
 	glGenBuffers(4, VBOs);
-	
+
 	// first triangle setup
 	glBindVertexArray(VAOs[0]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
@@ -149,7 +110,7 @@ int main( int argc, char **argv ){
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0 , (void*)0);
 	glEnableVertexAttribArray(0);
 
-	
+
 	while(!glfwWindowShouldClose(window)){
 		// Processa entrada
 		processInput(window, &x, &y, &a, &rotate);
@@ -162,12 +123,12 @@ int main( int argc, char **argv ){
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Ativa shader
-		glUseProgram(shaderProgram);
-		
+		prog.use();
+
 		// Renderiza catavento
 		glBindVertexArray(VAOs[0]);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-		
+
 		glBindVertexArray(VAOs[1]);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -184,7 +145,7 @@ int main( int argc, char **argv ){
 	}
    // de-alocate resources
 	glDeleteVertexArrays(4, VAOs);
-	glDeleteBuffers(4, VBOs); 
+	glDeleteBuffers(4, VBOs);
 	glfwTerminate();
 
 	return 0;
@@ -226,4 +187,7 @@ void processInput(GLFWwindow *window, int *x, int *y, int *a, bool *rotate){
 	else if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS){
 		*rotate = !*rotate;
 	}
+	else if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
+		glfwSetWindowShouldClose(window, GL_TRUE);
+	}	
 }
