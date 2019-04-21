@@ -83,7 +83,7 @@ float *multVecByMatrix3(float *matrix, float *vec){
 
   result[0] = matrix[0]*vec[0] + matrix[1]*vec[1] + matrix[2]*vec[2];
   result[1] = matrix[3]*vec[0] + matrix[4]*vec[1] + matrix[5]*vec[2];
-  result[3] = matrix[6]*vec[0] + matrix[7]*vec[1] + matrix[8]*vec[2];
+  result[2] = matrix[6]*vec[0] + matrix[7]*vec[1] + matrix[8]*vec[2];
 
   return result;
 }
