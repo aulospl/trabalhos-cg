@@ -1,6 +1,6 @@
 #include "matrixArith.h"
 
-float *createMatrix3(float a11, float a12, float a13,
+float *createMatrix3(float a11, float a12, float a13,//cria uma matriz 3x3 com os valores passados
                      float a21, float a22, float a23,
                      float a31, float a32, float a33){
 
@@ -18,14 +18,14 @@ float *createMatrix3(float a11, float a12, float a13,
 }
 
 
-float *createIdentity3(){
+float *createIdentity3(){//cria a matriz identidade 3x3
     return createMatrix3( 1,  0,  0, 0, 1, 0, 0, 0, 1);
 }
-float *createDiagonal3(float a11, float a22, float a33){
+float *createDiagonal3(float a11, float a22, float a33){//cria uma matriz 3x3 apenas com valores na diagonal principal
     return createMatrix3( a11,  0,  0, 0, a22, 0, 0, 0, a33);
 }
 
-float *createMatrix4(float a11, float a12, float a13, float a14,
+float *createMatrix4(float a11, float a12, float a13, float a14,//cria uma matriz 4x4 com os valores passados
                      float a21, float a22, float a23, float a24,
                      float a31, float a32, float a33, float a34,
                      float a41, float a42, float a43, float a44){
@@ -51,14 +51,14 @@ float *createMatrix4(float a11, float a12, float a13, float a14,
 }
 
 
-float *createIdentity4(){
+float *createIdentity4(){//cria a matriz identidade 4x4
     return createMatrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 }
-float *createDiagonal4(float a11, float a22, float a33, float a44){
+float *createDiagonal4(float a11, float a22, float a33, float a44){//cria uma matriz 4x4 apenas com valores na diagonal principal
     return createMatrix4(a11, 0, 0, 0, 0, a22, 0, 0, 0, 0, a33, 0, 0, 0, 0, a44);
 }
 
-float *addMatrix3(float *matrixA, float *matrixB){
+float *addMatrix3(float *matrixA, float *matrixB){//adiciona as matrizes passadas: A + B, caso 3x3
   float *result = new float[9];
 
   for(int i = 0; i < 9; i++)
@@ -67,7 +67,7 @@ float *addMatrix3(float *matrixA, float *matrixB){
   return result;
 }
 
-float *addMatrix4(float *matrixA, float *matrixB){
+float *addMatrix4(float *matrixA, float *matrixB){//adiciona as matrizes passadas: A + B, caso 4x4
   float *result = new float[16];
 
   for(int i = 0; i < 16; i++)
@@ -76,7 +76,7 @@ float *addMatrix4(float *matrixA, float *matrixB){
   return result;
 }
 
-float *multScalarMatrix3(float *matrix, int scalar){
+float *multScalarMatrix3(float *matrix, int scalar){//multiplica a matriz passada por um escalar, caso 3x3
   float *result = new float[9];
 
   for(int i = 0; i < 9; i++)
@@ -85,7 +85,7 @@ float *multScalarMatrix3(float *matrix, int scalar){
   return result;
 }
 
-float *multScalarMatrix4(float *matrix, int scalar){
+float *multScalarMatrix4(float *matrix, int scalar){//multiplica a matriz passada por um escalar, caso 4x4
   float *result = new float[16];
 
   for(int i = 0; i < 16; i++)
@@ -94,7 +94,7 @@ float *multScalarMatrix4(float *matrix, int scalar){
   return result;
 }
 
-float *multMatrix3(float *matrixA, float *matrixB){
+float *multMatrix3(float *matrixA, float *matrixB){//multiplica as matrizes uma pela outra, na ordem que foram passadas: matrizA * matrizB, caso 3x3
   float *result = new float[9];
   int line = 0;
 
@@ -114,7 +114,7 @@ float *multMatrix3(float *matrixA, float *matrixB){
   return result;
 }
 
-float *multMatrix4(float *matrixA, float *matrixB){
+float *multMatrix4(float *matrixA, float *matrixB){//multiplica as matrizes uma pela outra, na ordem que foram passadas: matrizA * matrizB, caso 4x4
   float *result = new float[16];
   int line = 0;
 
@@ -136,7 +136,7 @@ float *multMatrix4(float *matrixA, float *matrixB){
   return result;
 }
 
-float *multVecByMatrix3(float *matrix, float *vec){
+float *multVecByMatrix3(float *matrix, float *vec){//multiplica o vetor pela matriz 3x3: matriz*vetor
   float *result = new float[3];
 
   result[0] = matrix[0]*vec[0] + matrix[1]*vec[1] + matrix[2]*vec[2];
@@ -146,7 +146,7 @@ float *multVecByMatrix3(float *matrix, float *vec){
   return result;
 }
 
-float *multVecByMatrix4(float *matrix, float *vec){
+float *multVecByMatrix4(float *matrix, float *vec){//multiplica o vetor pela matriz 4x4: matriz*vetor
   float *result = new float[4];
 
   result[0] = matrix[0]*vec[0] + matrix[1]*vec[1] + matrix[2]*vec[2] + matrix[3]*vec[3];
