@@ -153,8 +153,8 @@ int main( int argc, char **argv ){
 
 		rotation_matrix[0] = cos(cur_angle);
 		rotation_matrix[1] = -sin(cur_angle);
-		rotation_matrix[4] = cos(cur_angle);
-		rotation_matrix[5] = sin(cur_angle);
+		rotation_matrix[4] = sin(cur_angle);
+		rotation_matrix[5] = cos(cur_angle);
 
 		if (x < x_min){
 			x = x_min;
