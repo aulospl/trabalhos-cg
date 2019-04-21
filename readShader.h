@@ -11,7 +11,7 @@ class ShaderProgram{
 public:
     ShaderProgram(char * vertexShaderName, char * fragShaderName);
     void use();
-
+    int getProgram();
 private:
     int shaderProgram;
 };

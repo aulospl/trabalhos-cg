@@ -49,6 +49,10 @@ void ShaderProgram::use(){
 	glUseProgram(this->shaderProgram);
 }
 
+int ShaderProgram::getProgram(){
+	return this->shaderProgram;
+}
+
 
 char * readShader(char * filename){
 	if (filename == NULL){
