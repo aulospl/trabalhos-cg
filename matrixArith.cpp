@@ -1,5 +1,63 @@
 #include "matrixArith.h"
 
+float *createMatrix3(float a11, float a12, float a13,
+                     float a21, float a22, float a23,
+                     float a31, float a32, float a33){
+
+    float *result = new float[9];
+    result[0] = a11;
+    result[1] = a12;
+    result[2] = a13;
+    result[3] = a21;
+    result[4] = a22;
+    result[5] = a23;
+    result[6] = a31;
+    result[7] = a32;
+    result[8] = a33;
+    return result;
+}
+
+
+float *createIdentity3(){
+    return createMatrix3( 1,  0,  0, 0, 1, 0, 0, 0, 1);
+}
+float *createDiagonal3(float a11, float a22, float a33){
+    return createMatrix3( a11,  0,  0, 0, a22, 0, 0, 0, a33);
+}
+
+float *createMatrix4(float a11, float a12, float a13, float a14,
+                     float a21, float a22, float a23, float a24,
+                     float a31, float a32, float a33, float a34,
+                     float a41, float a42, float a43, float a44){
+
+    float *result = new float[16];
+    result[0] = a11;
+    result[1] = a12;
+    result[2] = a13;
+    result[3] = a14;
+    result[4] = a21;
+    result[5] = a22;
+    result[6] = a23;
+    result[7] = a24;
+    result[8] = a31;
+    result[9] = a32;
+    result[10] = a33;
+    result[11] = a34;
+    result[12] = a41;
+    result[13] = a42;
+    result[14] = a43;
+    result[15] = a44;
+    return result;
+}
+
+
+float *createIdentity4(){
+    return createMatrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+}
+float *createDiagonal4(float a11, float a22, float a33, float a44){
+    return createMatrix4(a11, 0, 0, 0, 0, a22, 0, 0, 0, 0, a33, 0, 0, 0, 0, a44);
+}
+
 float *addMatrix3(float *matrixA, float *matrixB){
   float *result = new float[9];
 
@@ -83,7 +141,7 @@ float *multVecByMatrix3(float *matrix, float *vec){
 
   result[0] = matrix[0]*vec[0] + matrix[1]*vec[1] + matrix[2]*vec[2];
   result[1] = matrix[3]*vec[0] + matrix[4]*vec[1] + matrix[5]*vec[2];
-  result[3] = matrix[6]*vec[0] + matrix[7]*vec[1] + matrix[8]*vec[2];
+  result[2] = matrix[6]*vec[0] + matrix[7]*vec[1] + matrix[8]*vec[2];
 
   return result;
 }

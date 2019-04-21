@@ -2,6 +2,10 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "readShader.h"
+#include "matrixArith.h"
+#include <cmath>
+
+
 
 using namespace std;
 
@@ -9,14 +13,23 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 void processInput(GLFWwindow *window, int *x, int *y, int *a, bool *rotate);
 
-int main( int argc, char **argv ){
-	int x, y, a;
-	bool rotate = true;
+int width_now;
+int height_now;
 
+
+int main( int argc, char **argv ){
+	const int x_min = -50;
+	const int x_max = 50;
+	const int y_min = -50;
+	const int y_max = 50;
+	int x, y, rotation_speed;
+	bool rotate = true;
+	float cur_angle = 0;
+	GLfloat lastFrame, deltaTime; // Estabilizar a imagem em funcao do fps
 	// Posição e velocidade iniciais
-	x = 512;
-	y = 384;
-	a = 1;
+	x = 0;
+	y = 0;
+	rotation_speed = 40;
 
 	// Inicializando glfw e configurando contexto
 	glfwInit();
@@ -24,6 +37,8 @@ int main( int argc, char **argv ){
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+	width_now = 1024;
+	height_now = 768;
 	GLFWwindow *window = glfwCreateWindow(1024, 768, "Trabalho 1", NULL, NULL);
 	if(window == NULL){
 		cout << "Failed to create GLFW Window" << endl;
@@ -110,10 +125,14 @@ int main( int argc, char **argv ){
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0 , (void*)0);
 	glEnableVertexAttribArray(0);
 
+	lastFrame = glfwGetTime();
+
+	float *rotation_matrix = createIdentity4();
+	float *translation_matrix = createIdentity4();
 
 	while(!glfwWindowShouldClose(window)){
 		// Processa entrada
-		processInput(window, &x, &y, &a, &rotate);
+		processInput(window, &x, &y, &rotation_speed, &rotate);
 
 		// Renderização
 		// TODO
@@ -124,6 +143,43 @@ int main( int argc, char **argv ){
 
 		// Ativa shader
 		prog.use();
+
+		GLfloat currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+		if (rotate){
+			cur_angle += rotation_speed/40.0 * deltaTime;
+		}
+
+		rotation_matrix[0] = cos(cur_angle);
+		rotation_matrix[1] = -sin(cur_angle);
+		rotation_matrix[4] = cos(cur_angle);
+		rotation_matrix[5] = sin(cur_angle);
+
+		if (x < x_min){
+			x = x_min;
+		}
+
+		if (x > x_max){
+			x = x_max;
+		}
+
+
+		if (y < y_min){
+			y = y_min;
+		}
+
+		if (y > y_max){
+			y = y_max;
+		}
+
+
+		translation_matrix[3] = x/100.0;
+		translation_matrix[7] = y/100.0;
+
+		float* model_matrix = multMatrix4(translation_matrix, rotation_matrix);
+		glUniformMatrix4fv(glGetUniformLocation(prog.getProgram(), "model"), 1, GL_TRUE, model_matrix);
+		free (model_matrix);
 
 		// Renderiza catavento
 		glBindVertexArray(VAOs[0]);
@@ -155,6 +211,8 @@ int main( int argc, char **argv ){
  * Função de callback para redimencionar o viewport quando a janela é redimencionada
  */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){
+	width_now = width;
+	height_now = height;
  	glViewport(0, 0, width, height);
 }
 
@@ -189,5 +247,5 @@ void processInput(GLFWwindow *window, int *x, int *y, int *a, bool *rotate){
 	}
 	else if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
 		glfwSetWindowShouldClose(window, GL_TRUE);
-	}	
+	}
 }
