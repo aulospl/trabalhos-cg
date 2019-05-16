@@ -13,9 +13,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 void processInput(GLFWwindow *window, int *x, int *y, int *a, bool *rotate);
 
-int width_now;
-int height_now;
-
 
 int main( int argc, char **argv ){
 	const int x_min = -50;
@@ -142,11 +139,11 @@ int main( int argc, char **argv ){
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Ativa shader
-		prog.use();
-
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
+		prog.use();
+
 		if (rotate){
 			cur_angle += rotation_speed/40.0 * deltaTime;
 		}
