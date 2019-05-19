@@ -11,8 +11,6 @@
 using namespace std;
 // GL Includes
 #include <glad/glad.h> // Contains all the necessery OpenGL includes
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <assimp/scene.h>
 
 #include <readShader.h>
@@ -20,11 +18,11 @@ using namespace std;
 
 struct Vertex {
     // Position
-    glm::vec3 Position;
+    float Position[3];
     // Normal
-    glm::vec3 Normal;
+    float Normal[3];
     // TexCoords
-    glm::vec2 TexCoords;
+    float TexCoords[2];
 };
 
 struct Texture {
