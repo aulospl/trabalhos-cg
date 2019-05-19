@@ -11,19 +11,23 @@ using namespace std;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-void processInput(GLFWwindow *window, char *eixo, int *rot_dir, float *scale);
+void processInput(GLFWwindow *window, int *rot_dir, float *scale, char* eixo);
 
+float* changeRotationsAxis(char axis, float *rotation_matrix);
+
+
+float cur_angle = 0;
 
 int main( int argc, char **argv ){
 	// const int x_min = -50;
 	// const int x_max = 50;
 	// const int y_min = -50;
 	// const int y_max = 50;
+	char eixo = 'y';
 	int rot_dir = 1;
-	char eixo;
 	float scale = 1.0, rotation_speed = 0.1;
 	bool rotate = true;
-	float cur_angle = 0;
+	// float cur_angle = 0;
 	GLfloat lastFrame, deltaTime; // Estabilizar a imagem em funcao do fps
 	// Posição e velocidade iniciais
 	rotation_speed = 40;
@@ -79,9 +83,9 @@ int main( int argc, char **argv ){
 	float *scale_matrix = createIdentity4();
 
 	while(!glfwWindowShouldClose(window)){
-		
+		rot_dir = 1;
 		// Processa entrada
-		processInput(window, &eixo, &rot_dir, &scale);
+		processInput(window, &rot_dir, &scale, &eixo);
 
 		// Renderização
 		// Background branco
@@ -97,12 +101,7 @@ int main( int argc, char **argv ){
 		if (rotate){
 			cur_angle += rotation_speed/50.0 * deltaTime * rot_dir;
 		}
-	
-		rotation_matrix[0] = cos(cur_angle);
-		rotation_matrix[2] = -sin(cur_angle);
-		rotation_matrix[8] = sin(cur_angle);
-		rotation_matrix[10] = cos(cur_angle);
-
+		rotation_matrix = changeRotationsAxis(eixo, rotation_matrix);
 
 		translation_matrix[3] = 0.0;
 		translation_matrix[7] = -0.7;
@@ -146,15 +145,15 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
  * a = velocidade angular
  * rotate = se o catavento gira ou esta parado
  */
-void processInput(GLFWwindow *window, char *eixo, int *rot_dir, float *scale){
+void processInput(GLFWwindow *window, int *rot_dir, float *scale, char *eixo){
 	if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS){
-		*eixo = 'X';
+		*eixo = 'x';
 	}
 	else if(glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS){
-		*eixo = 'Y';
+		*eixo = 'y';
 	}
 	else if(glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS){
-		*eixo = 'Z';
+		*eixo = 'z';
 	}
 	else if(glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS){
 		*scale = *scale * 1.1;
@@ -162,8 +161,9 @@ void processInput(GLFWwindow *window, char *eixo, int *rot_dir, float *scale){
 	else if(glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS){
 		*scale = *scale / 1.1;
 	}
-	else if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
-		*rot_dir = 1;
+	else if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || 
+			glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS){
+		*rot_dir = -1;
 	}
 	// else if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE){
 	// 	*rot_dir = 1;
@@ -171,4 +171,35 @@ void processInput(GLFWwindow *window, char *eixo, int *rot_dir, float *scale){
 	else if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
+}
+
+
+float* changeRotationsAxis(char axis, float *rotation_matrix){
+	switch(axis){
+	case 'x':
+		free(rotation_matrix);
+		rotation_matrix = createIdentity4();
+		rotation_matrix[5] = cos(cur_angle);
+		rotation_matrix[6] = -sin(cur_angle);
+		rotation_matrix[9] = sin(cur_angle);
+		rotation_matrix[10] = cos(cur_angle);
+		break;
+	case 'y':
+		free(rotation_matrix);
+		rotation_matrix = createIdentity4();
+		rotation_matrix[0] = cos(cur_angle);
+		rotation_matrix[2] = -sin(cur_angle);
+		rotation_matrix[8] = sin(cur_angle);
+		rotation_matrix[10] = cos(cur_angle);
+		break;
+	case 'z':
+		free(rotation_matrix);
+		rotation_matrix = createIdentity4();
+		rotation_matrix[0] = cos(cur_angle);
+		rotation_matrix[1] = -sin(cur_angle);
+		rotation_matrix[4] = sin(cur_angle);
+		rotation_matrix[5] = cos(cur_angle);
+		break;
+	}
+	return rotation_matrix;
 }
