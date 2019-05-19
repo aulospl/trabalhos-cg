@@ -11,21 +11,21 @@ using namespace std;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-void processInput(GLFWwindow *window, int *x, int *y, int *a, bool *rotate);
+void processInput(GLFWwindow *window, char *eixo, int *rot_dir, float *scale);
 
 
 int main( int argc, char **argv ){
-	const int x_min = -50;
-	const int x_max = 50;
-	const int y_min = -50;
-	const int y_max = 50;
-	int x, y, rotation_speed;
+	// const int x_min = -50;
+	// const int x_max = 50;
+	// const int y_min = -50;
+	// const int y_max = 50;
+	int rot_dir = 1;
+	char eixo;
+	float scale = 1.0, rotation_speed = 0.1;
 	bool rotate = true;
 	float cur_angle = 0;
 	GLfloat lastFrame, deltaTime; // Estabilizar a imagem em funcao do fps
 	// Posição e velocidade iniciais
-	x = 0;
-	y = 0;
 	rotation_speed = 40;
 
 	// Inicializando glfw e configurando contexto
@@ -57,29 +57,6 @@ int main( int argc, char **argv ){
 	// Configura função de callback para redimencionar viewport
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	// float firstTriangle[] = {
-	// 	0.0f, 0.0f, 0.0f,		//left
-	// 	0.5f, 0.0f, 0.0f,		//right
-	// 	0.25f, -0.2f, 0.0f		//top
-	// };
-	// float secondTriagle[] = {
-	// 	0.0f, 0.0f, 0.0f,		//top
-	// 	-0.2f, -0.25f, 0.0f,	//left
-	// 	0.0f, -0.5f, 0.0f		//bottom
-	// };
-	// float thirdTriangle[] = {
-	// 	0.0f, 0.0f, 0.0f,		//right
-	// 	-0.25f, 0.2f, 0.0f,		//top
-	// 	-0.5f, 0.0f, 0.0f		//left
-	// };
-	// float fourthTriagle[] = {
-	// 	0.0f, 0.0f, 0.0f,		//bottom
-	// 	0.2f, 0.25f, 0.0f,		//right
-	// 	0.0f, 0.5f, 0.0f		//top
-	// };
-
-
-
 
 	// build and compile shader programs
 	// ---------------------------------
@@ -91,7 +68,7 @@ int main( int argc, char **argv ){
 	if (argc > 1){
 		ourModel = new Model(argv[1]);
 	}else{
-		ourModel = new Model("models/nanosuit/nanosuit.obj");
+		ourModel = new Model("models/IronMan/IronMan.obj");
 	}
 
 
@@ -100,17 +77,13 @@ int main( int argc, char **argv ){
 	float *rotation_matrix = createIdentity4();
 	float *translation_matrix = createIdentity4();
 	float *scale_matrix = createIdentity4();
-	scale_matrix[0] = 0.1;
-	scale_matrix[5] = 0.1;
-	scale_matrix[10] = 0.1;
 
 	while(!glfwWindowShouldClose(window)){
+		
 		// Processa entrada
-		processInput(window, &x, &y, &rotation_speed, &rotate);
+		processInput(window, &eixo, &rot_dir, &scale);
 
 		// Renderização
-		// TODO
-		//
 		// Background branco
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -122,34 +95,22 @@ int main( int argc, char **argv ){
 		prog.use();
 
 		if (rotate){
-			cur_angle += rotation_speed/40.0 * deltaTime;
+			cur_angle += rotation_speed/50.0 * deltaTime * rot_dir;
 		}
-
+	
 		rotation_matrix[0] = cos(cur_angle);
 		rotation_matrix[2] = -sin(cur_angle);
-		rotation_matrix[9] = sin(cur_angle);
+		rotation_matrix[8] = sin(cur_angle);
 		rotation_matrix[10] = cos(cur_angle);
 
-		if (x < x_min){
-			x = x_min;
-		}
 
-		if (x > x_max){
-			x = x_max;
-		}
+		translation_matrix[3] = 0.0;
+		translation_matrix[7] = -0.7;
 
+		scale_matrix[0] = scale*0.1;
+		scale_matrix[5] = scale*0.1;
+		scale_matrix[10] = scale*0.1;
 
-		if (y < y_min){
-			y = y_min;
-		}
-
-		if (y > y_max){
-			y = y_max;
-		}
-
-
-		translation_matrix[3] = x/100.0;
-		translation_matrix[7] = y/100.0 - 0.7;
 
 		float* model_matrix = multMatrix4(translation_matrix, rotation_matrix);
 		model_matrix = multMatrix4(model_matrix, scale_matrix);
@@ -185,28 +146,28 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
  * a = velocidade angular
  * rotate = se o catavento gira ou esta parado
  */
-void processInput(GLFWwindow *window, int *x, int *y, int *a, bool *rotate){
-	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
-		*y = *y+1;
+void processInput(GLFWwindow *window, char *eixo, int *rot_dir, float *scale){
+	if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS){
+		*eixo = 'X';
 	}
-	else if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
-		*y = *y-1;
+	else if(glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS){
+		*eixo = 'Y';
 	}
-	else if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
-		*x = *x-1;
+	else if(glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS){
+		*eixo = 'Z';
 	}
-	else if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
-		*x = *x+1;
+	else if(glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS){
+		*scale = *scale * 1.1;
 	}
-	else if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS){
-		*a = *a+1;
+	else if(glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS){
+		*scale = *scale / 1.1;
 	}
-	else if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS){
-		*a = *a-1;
+	else if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
+		*rot_dir = 1;
 	}
-	else if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS){
-		*rotate = !*rotate;
-	}
+	// else if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE){
+	// 	*rot_dir = 1;
+	// }
 	else if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}

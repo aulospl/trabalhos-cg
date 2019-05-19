@@ -44,28 +44,23 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene){
   //Go to each of the meshes vertices
   for(GLuint i = 0; i < mesh->mNumVertices; i++){
     Vertex vertex;
-    //Creating placeholder vector for converting Assimp vectors into glm vectors
-    glm::vec3 vector;
     //Positions
-    vector.x = mesh->mVertices[i].x;
-    vector.y = mesh->mVertices[i].y;
-    vector.z = mesh->mVertices[i].z;
-    vertex.Position = vector;
+    vertex.Position[0] = mesh->mVertices[i].x;
+    vertex.Position[1] = mesh->mVertices[i].y;
+    vertex.Position[2] = mesh->mVertices[i].z;
     //Normals
-    vector.x = mesh->mNormals[i].x;
-    vector.y = mesh->mNormals[i].y;
-    vector.z = mesh->mNormals[i].z;
-    vertex.Normal = vector;
+    vertex.Normal[0] = mesh->mNormals[i].x;
+    vertex.Normal[1] = mesh->mNormals[i].y;
+    vertex.Normal[2] = mesh->mNormals[i].z;
     //Texture coordinates
     if(mesh->mTextureCoords[0]){ //Verify the existance of texture coordinates in the mesh
-      glm::vec2 vec;
       // A vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't
       // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
-      vec.x = mesh->mTextureCoords[0][i].x;
-      vec.y = mesh->mTextureCoords[0][i].y;
-      vertex.TexCoords = vec;
+      vertex.TexCoords[0] = mesh->mTextureCoords[0][i].x;
+      vertex.TexCoords[1] = mesh->mTextureCoords[0][i].y;
     }else{
-      vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+      vertex.TexCoords[0] = 0.0;
+      vertex.TexCoords[1] = 0.0;
     }
     vertices.push_back(vertex);
   }
