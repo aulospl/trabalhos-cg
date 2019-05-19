@@ -4,7 +4,7 @@
 #include <readShader.h>
 #include <matrixArith.h>
 #include <cmath>
-
+#include <Model.h>
 
 
 using namespace std;
@@ -52,78 +52,57 @@ int main( int argc, char **argv ){
 
 	// Cria viewport
 	glViewport(0, 0, 1024, 768);
+	glEnable(GL_DEPTH_TEST);
 
 	// Configura função de callback para redimencionar viewport
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	/*
-	 * TODO:
-	 *			Definir vertices dos triangulos
-	 *			Carregar VBOs VBAs
-	 *			Carregar shaders
-	 */
-	float firstTriangle[] = {
-		0.0f, 0.0f, 0.0f,		//left
-		0.5f, 0.0f, 0.0f,		//right
-		0.25f, -0.2f, 0.0f		//top
-	};
-	float secondTriagle[] = {
-		0.0f, 0.0f, 0.0f,		//top
-		-0.2f, -0.25f, 0.0f,	//left
-		0.0f, -0.5f, 0.0f		//bottom
-	};
-	float thirdTriangle[] = {
-		0.0f, 0.0f, 0.0f,		//right
-		-0.25f, 0.2f, 0.0f,		//top
-		-0.5f, 0.0f, 0.0f		//left
-	};
-	float fourthTriagle[] = {
-		0.0f, 0.0f, 0.0f,		//bottom
-		0.2f, 0.25f, 0.0f,		//right
-		0.0f, 0.5f, 0.0f		//top
-	};
+	// float firstTriangle[] = {
+	// 	0.0f, 0.0f, 0.0f,		//left
+	// 	0.5f, 0.0f, 0.0f,		//right
+	// 	0.25f, -0.2f, 0.0f		//top
+	// };
+	// float secondTriagle[] = {
+	// 	0.0f, 0.0f, 0.0f,		//top
+	// 	-0.2f, -0.25f, 0.0f,	//left
+	// 	0.0f, -0.5f, 0.0f		//bottom
+	// };
+	// float thirdTriangle[] = {
+	// 	0.0f, 0.0f, 0.0f,		//right
+	// 	-0.25f, 0.2f, 0.0f,		//top
+	// 	-0.5f, 0.0f, 0.0f		//left
+	// };
+	// float fourthTriagle[] = {
+	// 	0.0f, 0.0f, 0.0f,		//bottom
+	// 	0.2f, 0.25f, 0.0f,		//right
+	// 	0.0f, 0.5f, 0.0f		//top
+	// };
+
+
+
 
 	// build and compile shader programs
 	// ---------------------------------
-	ShaderProgram prog("vtx_shader.glsl", "frag_shader.glsl");
+	ShaderProgram prog("shaders/vtx_shader.glsl", "shaders/frag_shader.glsl");
 
-	// Set VBO and VAOs and bind to triangles
-	unsigned int VBOs[4], VAOs[4];
-	glGenVertexArrays(4, VAOs);
-	glGenBuffers(4, VBOs);
 
-	// first triangle setup
-	glBindVertexArray(VAOs[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(firstTriangle), firstTriangle, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
 
-	// second triagle setup
-	glBindVertexArray(VAOs[1]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(secondTriagle), secondTriagle, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0 , (void*)0);
-	glEnableVertexAttribArray(0);
+	Model *ourModel;
+	if (argc > 1){
+		ourModel = new Model(argv[1]);
+	}else{
+		ourModel = new Model("models/nanosuit/nanosuit.obj");
+	}
 
-	// third triangle setup
-	glBindVertexArray(VAOs[2]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOs[2]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(thirdTriangle), thirdTriangle, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	// fourth triagle setup
-	glBindVertexArray(VAOs[3]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOs[3]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(fourthTriagle), fourthTriagle, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0 , (void*)0);
-	glEnableVertexAttribArray(0);
 
 	lastFrame = glfwGetTime();
 
 	float *rotation_matrix = createIdentity4();
 	float *translation_matrix = createIdentity4();
+	float *scale_matrix = createIdentity4();
+	scale_matrix[0] = 0.1;
+	scale_matrix[5] = 0.1;
+	scale_matrix[10] = 0.1;
 
 	while(!glfwWindowShouldClose(window)){
 		// Processa entrada
@@ -134,7 +113,7 @@ int main( int argc, char **argv ){
 		//
 		// Background branco
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Ativa shader
 		GLfloat currentFrame = glfwGetTime();
@@ -147,9 +126,9 @@ int main( int argc, char **argv ){
 		}
 
 		rotation_matrix[0] = cos(cur_angle);
-		rotation_matrix[1] = -sin(cur_angle);
-		rotation_matrix[4] = sin(cur_angle);
-		rotation_matrix[5] = cos(cur_angle);
+		rotation_matrix[2] = -sin(cur_angle);
+		rotation_matrix[9] = sin(cur_angle);
+		rotation_matrix[10] = cos(cur_angle);
 
 		if (x < x_min){
 			x = x_min;
@@ -170,33 +149,23 @@ int main( int argc, char **argv ){
 
 
 		translation_matrix[3] = x/100.0;
-		translation_matrix[7] = y/100.0;
+		translation_matrix[7] = y/100.0 - 0.7;
 
 		float* model_matrix = multMatrix4(translation_matrix, rotation_matrix);
+		model_matrix = multMatrix4(model_matrix, scale_matrix);
+
 		glUniformMatrix4fv(glGetUniformLocation(prog.getProgram(), "model"), 1, GL_TRUE, model_matrix);
 		free (model_matrix);
 
 		// Renderiza catavento
-		glBindVertexArray(VAOs[0]);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
 
-		glBindVertexArray(VAOs[1]);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		glBindVertexArray(VAOs[2]);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		glBindVertexArray(VAOs[3]);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
+		ourModel->draw(prog);
 
 		// Verifica e chama eventos e troca os buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
    // de-alocate resources
-	glDeleteVertexArrays(4, VAOs);
-	glDeleteBuffers(4, VBOs);
 	glfwTerminate();
 
 	return 0;

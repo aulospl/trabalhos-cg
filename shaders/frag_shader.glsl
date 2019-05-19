@@ -1,6 +1,22 @@
 #version 450 core
-	out vec4 FragColor;
+	out vec4 color;
+
+struct  Material {
+  sampler2D diffuse;
+  sampler2D specular;
+  float shininess;
+};
+
+
+in vec3 FragPos;
+in vec3 Normal;
+in vec2 TexCoords;
+
+
+uniform Material material;
+
 
 void main(){
-		FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+
+  color =  mix(texture(material.diffuse, TexCoords), texture(material.specular, TexCoords), 0.2);
 }
