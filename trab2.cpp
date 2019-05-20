@@ -17,6 +17,7 @@ float* changeRotationsAxis(char axis, float *rotation_matrix);
 
 
 float cur_angle = 0;
+bool useTexture = true;
 
 int main( int argc, char **argv ){
 	// const int x_min = -50;
@@ -27,6 +28,7 @@ int main( int argc, char **argv ){
 	int rot_dir = 1;
 	float scale = 1.0, rotation_speed = 0.1;
 	bool rotate = true;
+	float max_scale = 100;
 	// float cur_angle = 0;
 	GLfloat lastFrame, deltaTime; // Estabilizar a imagem em funcao do fps
 	// Posição e velocidade iniciais
@@ -82,10 +84,17 @@ int main( int argc, char **argv ){
 	float *translation_matrix = createIdentity4();
 	float *scale_matrix = createIdentity4();
 
+	max_scale = 1.0/(ourModel->maxCoordinate);
+	scale = 0.75 * max_scale;
+
 	while(!glfwWindowShouldClose(window)){
 		rot_dir = 1;
 		// Processa entrada
 		processInput(window, &rot_dir, &scale, &eixo);
+
+		if (scale > max_scale){
+			scale = max_scale;
+		}
 
 		// Renderização
 		// Background branco
@@ -104,11 +113,11 @@ int main( int argc, char **argv ){
 		rotation_matrix = changeRotationsAxis(eixo, rotation_matrix);
 
 		translation_matrix[3] = 0.0;
-		translation_matrix[7] = -0.7;
+		translation_matrix[7] = 0.0;
 
-		scale_matrix[0] = scale*0.1;
-		scale_matrix[5] = scale*0.1;
-		scale_matrix[10] = scale*0.1;
+		scale_matrix[0] = scale;
+		scale_matrix[5] = scale;
+		scale_matrix[10] = scale;
 
 
 		float* model_matrix = multMatrix4(translation_matrix, rotation_matrix);
@@ -119,7 +128,7 @@ int main( int argc, char **argv ){
 
 		// Renderiza catavento
 
-		ourModel->draw(prog);
+		ourModel->draw(prog, useTexture);
 
 		// Verifica e chama eventos e troca os buffers
 		glfwSwapBuffers(window);
@@ -165,9 +174,9 @@ void processInput(GLFWwindow *window, int *rot_dir, float *scale, char *eixo){
 			glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS){
 		*rot_dir = -1;
 	}
-	// else if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE){
-	// 	*rot_dir = 1;
-	// }
+	else if(glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS){
+		useTexture = !useTexture;
+	}
 	else if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}

@@ -31,18 +31,25 @@ struct Texture {
     aiString path;
 };
 
+struct Material {
+    float Diffuse[3];
+    float Specular[3];
+    float Ambient[3];
+    float Shininess;
+};
+
 class Mesh {
 public:
     /*  Mesh Data  */
     vector<Vertex> vertices;
     vector<GLuint> indices;
     vector<Texture> textures;
-
+    Material material;
     /*  Functions  */
     // Constructor
-    Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures);
+    Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures, Material);
     // Render the mesh
-    void Draw(ShaderProgram shader);
+    void Draw(ShaderProgram shader, bool useTexture);
 
 private:
     /*  Render data  */

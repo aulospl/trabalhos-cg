@@ -4,6 +4,8 @@
 #pragma once
 
 #include <string>
+#include <sstream>
+#include <cmath>
 #include <map>
 #include <vector>
 //Image library include
@@ -21,10 +23,12 @@ using namespace std;
 class Model{
   public:
     //Functions
-    void draw(ShaderProgram shader);
+    void draw(ShaderProgram shader, bool useTexture);
     //Constructor and destructor
     Model(const GLchar* path);
     ~Model();
+
+    float maxCoordinate;
   private:
     //Data
     vector<Texture> textures_loaded;
@@ -32,6 +36,8 @@ class Model{
     string directory;
     //Functions
 
+    //Load materilas from assim
+    Material loadMaterial(aiMaterial* mat);
     //Load a model with ASSIMP
     void loadModel(string path);
     //Process nodes with recursive call

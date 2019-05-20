@@ -4,10 +4,14 @@ Model::Model(const GLchar* path){
   string Path = path;
   loadModel(Path);
 }
-void Model::draw(ShaderProgram shader){
+void Model::draw(ShaderProgram shader, bool useTexture){
   for(unsigned int i = 0; i < this->meshes.size(); i++){
-    this->meshes[i].Draw(shader);
+    this->meshes[i].Draw(shader, useTexture);
   }
+}
+
+std::string get_right_of_delim(std::string const& str, std::string const& delim){
+  return str.substr(str.find(delim) + delim.size());
 }
 
 void Model::loadModel(string path){
@@ -48,10 +52,15 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene){
     vertex.Position[0] = mesh->mVertices[i].x;
     vertex.Position[1] = mesh->mVertices[i].y;
     vertex.Position[2] = mesh->mVertices[i].z;
+    this->maxCoordinate = fmax(this->maxCoordinate, vertex.Position[0]);
+    this->maxCoordinate = fmax(this->maxCoordinate, vertex.Position[1]);
+    this->maxCoordinate = fmax(this->maxCoordinate, vertex.Position[2]);
     //Normals
-    vertex.Normal[0] = mesh->mNormals[i].x;
-    vertex.Normal[1] = mesh->mNormals[i].y;
-    vertex.Normal[2] = mesh->mNormals[i].z;
+    if (mesh->mNormals != nullptr){
+      vertex.Normal[0] = mesh->mNormals[i].x;
+      vertex.Normal[1] = mesh->mNormals[i].y;
+      vertex.Normal[2] = mesh->mNormals[i].z; 
+    }
     //Texture coordinates
     if(mesh->mTextureCoords[0]){ //Verify the existance of texture coordinates in the mesh
       // A vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't
@@ -74,6 +83,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene){
     }
   }
   //Process materials
+  Material materialMap;
   if(mesh->mMaterialIndex >= 0){
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
     // We assume a convention for sampler names in the shaders. Each diffuse texture should be named
@@ -89,9 +99,11 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene){
     // 2. Specular maps
     vector<Texture> specularMap = this->loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
     textures.insert(textures.end(), specularMap.begin(), specularMap.end());
+    // 3. Material
+    materialMap = this->loadMaterial(material);
   }
   //Return a mesh object created with the assimp mesh data
-  return Mesh(vertices, indices, textures);
+  return Mesh(vertices, indices, textures, materialMap);
 }
 
 // Checks all material textures of a given type and loads the textures if they're not loaded yet.
@@ -123,14 +135,51 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
   return textures;
 }
 
+Material Model::loadMaterial(aiMaterial* mat) {
+  Material material;
+  aiColor3D color(0.f, 0.f, 0.f);
+  float shininess;
+
+  mat->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+  material.Diffuse[0] = color.r;
+  material.Diffuse[1] = color.b;
+  material.Diffuse[2] = color.g;
+
+  mat->Get(AI_MATKEY_COLOR_AMBIENT, color);
+  material.Ambient[0] = color.r;
+  material.Ambient[1] = color.b;
+  material.Ambient[2] = color.g;
+
+  mat->Get(AI_MATKEY_COLOR_SPECULAR, color);
+  material.Specular[0] = color.r;
+  material.Specular[1] = color.b;
+  material.Specular[2] = color.g;
+
+  mat->Get(AI_MATKEY_SHININESS, shininess);
+  material.Shininess = shininess;
+
+  return material;
+}
+
 GLint Model::TextureFromFile(const char* path, string directory){
   //Load texture and generate id
-  string filename = string(path);
+  
+  istringstream iss(path);
+  string aux;
+  while (std::getline( iss, aux, '/' )){
+  }
+
+  string filename = string(aux);
   filename = directory + '/' + filename;
   GLuint textureID;
   glGenTextures(1, & textureID);
   glBindTexture(GL_TEXTURE_2D, textureID);
+
+  std::cout << "LOADING IMAGE " << filename.c_str() << std::endl;
   FIBITMAP* bitmap = FreeImage_Load(FreeImage_GetFileType(filename.c_str()), filename.c_str());
+  if(!bitmap){
+    std::cout << "ERROR::LOADING IMAGE" << std::endl;
+  }
   FIBITMAP* pImage = FreeImage_ConvertTo32Bits(bitmap);
   int imageHeight = FreeImage_GetHeight(pImage);
   int imageWidth = FreeImage_GetWidth(pImage);

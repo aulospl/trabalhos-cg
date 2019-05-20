@@ -1,17 +1,17 @@
 #include <Mesh.h>
 
-Mesh::Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures)
+Mesh::Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures, Material material)
 {
     this->vertices = vertices;
     this->indices = indices;
     this->textures = textures;
-
+    this->material = material;
     // Now that we have all the required data, set the vertex buffers and its attribute pointers.
     this->setupMesh();
 }
 
 // Render the mesh
-void Mesh::Draw(ShaderProgram shader)
+void Mesh::Draw(ShaderProgram shader, bool useTexture)
 {
     // Bind appropriate textures
     GLuint diffuseNr = 1;
@@ -33,9 +33,18 @@ void Mesh::Draw(ShaderProgram shader)
         // And finally bind the texture
         glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
     }
-
+    // Set material to the mesh
+    glUniform3f(glGetUniformLocation(shader.getProgram(), "material.ambient"), this->material.Ambient[0], this->material.Ambient[1], this->material.Ambient[2]);
+    glUniform3f(glGetUniformLocation(shader.getProgram(), "material.specular"), this->material.Specular[0], this->material.Specular[1], this->material.Specular[2]);
+    glUniform3f(glGetUniformLocation(shader.getProgram(), "material.diffuse"), this->material.Diffuse[0], this->material.Diffuse[1], this->material.Diffuse[2]);
+    glUniform1f(glGetUniformLocation(shader.getProgram(), "material.shininess"), this->material.Shininess);
     // Also set each mesh's shininess property to a default value (if you want you could extend this to another mesh property and possibly change this value)
-    glUniform1f(glGetUniformLocation(shader.getProgram(), "material.shininess"), 16.0f);
+    glUniform1f(glGetUniformLocation(shader.getProgram(), "text.shininess"), 16.0f);
+
+    glUniform1i(glGetUniformLocation(shader.getProgram(), "useTexture"), useTexture);
+
+    glActiveTexture(GL_TEXTURE0); 
+
 
     // Draw mesh
     glBindVertexArray(this->VAO);
