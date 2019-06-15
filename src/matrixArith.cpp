@@ -1,4 +1,5 @@
 #include "matrixArith.h"
+#include <cmath>
 
 float *createMatrix3(float a11, float a12, float a13,//cria uma matriz 3x3 com os valores passados
                      float a21, float a22, float a23,
@@ -153,6 +154,48 @@ float *multVecByMatrix4(float *matrix, float *vec){//multiplica o vetor pela mat
   result[1] = matrix[4]*vec[0] + matrix[5]*vec[1] + matrix[6]*vec[2] + matrix[7]*vec[3];
   result[2] = matrix[8]*vec[0] + matrix[9]*vec[1] + matrix[10]*vec[2] + matrix[11]*vec[3];
   result[3] = matrix[12]*vec[0] + matrix[13]*vec[1] + matrix[14]*vec[2] + matrix[15]*vec[3];
+
+  return result;
+}
+
+
+float *crossVec3(float *vecA, float *vecB){
+  float *result = new float[3];
+
+  result[0] = vecA[1] * vecB[2] - vecA[2] * vecB[1];
+  result[1] = vecA[0] * vecB[2] - vecA[2] * vecB[0];
+  result[2] = vecA[0] * vecB[1] - vecA[1] * vecB[0];
+
+  return result;
+}
+
+void normalizeVec3(float *vec){
+  float norm = sqrt(pow(vec[0],2) + pow(vec[1],2) + pow(vec[2],2));
+  vec[0] /= norm;
+  vec[1] /= norm;
+  vec[2] /= norm;
+}
+
+float *addVec3(float *vecA, float *vecB){
+  float *result = new float[3];
+
+  result[0] = vecA[0] + vecB[0];
+  result[1] = vecA[1] + vecB[1];
+  result[2] = vecA[2] + vecB[2];
+
+  return result;
+}
+
+float dotVec3(float *vecA, float *vecB){
+  return vecA[0]*vecB[0] + vecA[1]*vecB[1] + vecA[2]*vecB[2];  
+}
+
+float *scalarVec3(float *vec, float scalar){
+  float *result = new float[3];
+
+  result[0] = vec[0]*scalar;
+  result[1] = vec[1]*scalar;
+  result[2] = vec[2]*scalar;
 
   return result;
 }
