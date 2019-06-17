@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-Camera::Camera(float CameraPos[3], float CameraFront[3], float CameraUp[3]){
+Camera::Camera(float *CameraPos, float *CameraFront, float *CameraUp){
     cameraUp = new float[3];
     cameraFront = new float[3];
     cameraPos = new float[3];
@@ -110,15 +110,13 @@ float* Camera::lookAt(float *cameraPos, float *lookPos, float *up){
     Z[2] = lookPos[2] - cameraPos[2];
     float *X = crossVec3(up, Z);
     normalizeVec3(X);
-    float *Y = crossVec3(Z, X);
-    normalizeVec3(Y);
-    // normalizeVec3(Z);
-    float *ret = createMatrix4(X[0], Y[0], Z[0], -cameraPos[0],
-                               X[1], Y[1], Z[1], -cameraPos[1],
-                               X[2], Y[2], Z[2], -cameraPos[2],
+    normalizeVec3(Z);
+    float Y[3] = {0.0f,1.0f,0.0f};
+    float *ret = createMatrix4(X[0], X[1], X[2], -cameraPos[0],
+                               Y[0], Y[1], Y[2], -cameraPos[1],
+                               Z[0], Z[1], Z[2], -cameraPos[2],
                                0,    0,    0,    1);
     free(X);
-    free(Y);
     return ret;
 }
 

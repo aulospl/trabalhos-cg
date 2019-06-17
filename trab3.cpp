@@ -16,8 +16,6 @@ void processInput(GLFWwindow *window, int *rot_dir, float *scale, char* eixo, Ca
 float* changeRotationsAxis(char axis, float *rotation_matrix);
 
 
-float cur_angle = 0;
-bool useTexture = true;
 
 int main( int argc, char **argv ){
 	// const int x_min = -50;
@@ -33,7 +31,7 @@ int main( int argc, char **argv ){
 	GLfloat lastFrame, deltaTime; // Estabilizar a imagem em funcao do fps
 	// Posição e velocidade iniciais
 	rotation_speed = 40;
-
+	bool useTexture = true;
 	// Inicializando glfw e configurando contexto
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -80,7 +78,7 @@ int main( int argc, char **argv ){
 	if (argc > 1){
 		ourModel = new Model(argv[1]);
 	}else{
-		ourModel = new Model("models/IronMan/IronMan.obj");
+		ourModel = new Model("models/nanosuit/nanosuit.obj");
 	}
 
 
@@ -93,6 +91,8 @@ int main( int argc, char **argv ){
 	max_scale = 1.0/(ourModel->maxCoordinate);
 	scale = 0.75 * max_scale;
 
+	glfwSetWindowShouldClose(window,true);
+
 	while(!glfwWindowShouldClose(window)){
 		rot_dir = 1;
 		// Processa entrada
@@ -101,7 +101,7 @@ int main( int argc, char **argv ){
 		if (scale > max_scale){
 			scale = max_scale;
 		}
-
+		// std::cout << "x= " << ourCamera.cameraPos[0] << "      y= " << ourCamera.cameraPos[1] << "      z= " << ourCamera.cameraPos[2] << std::endl;
 		// Renderização
 		// Background branco
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -113,10 +113,10 @@ int main( int argc, char **argv ){
 		lastFrame = currentFrame;
 		prog.use();
 
-		if (rotate){
-			cur_angle += rotation_speed/50.0 * deltaTime * rot_dir;
-		}
-		rotation_matrix = changeRotationsAxis(eixo, rotation_matrix);
+		// if (rotate){
+		// 	cur_angle += rotation_speed/50.0 * deltaTime * rot_dir;
+		// }
+		rotation_matrix = createIdentity4();
 
 		translation_matrix[3] = 0.0;
 		translation_matrix[7] = 0.0;
@@ -128,6 +128,10 @@ int main( int argc, char **argv ){
 
 		float* model_matrix = multMatrix4(translation_matrix, rotation_matrix);
 		model_matrix = multMatrix4(model_matrix, scale_matrix);
+
+		float *view = ourCamera.getCameraMatrix();
+		glUniformMatrix4fv(glGetUniformLocation(prog.getProgram(), "projection"), 1, GL_FALSE, ourCamera.getPerspective());
+		glUniformMatrix4fv(glGetUniformLocation(prog.getProgram(), "view"), 1, GL_FALSE, view);
 
 		glUniformMatrix4fv(glGetUniformLocation(prog.getProgram(), "model"), 1, GL_TRUE, model_matrix);
 		free (model_matrix);
@@ -181,9 +185,6 @@ void processInput(GLFWwindow *window, int *rot_dir, float *scale, char *eixo, Ca
 			glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS){
 		*rot_dir = -1;
 	}
-	else if(glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS){
-		useTexture = !useTexture;
-	}
 	else if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
@@ -201,35 +202,4 @@ void processInput(GLFWwindow *window, int *rot_dir, float *scale, char *eixo, Ca
 	}
 	cam.moveCamera(xAxis, 0.0, zAxis);
 
-}
-
-
-float* changeRotationsAxis(char axis, float *rotation_matrix){
-	switch(axis){
-	case 'x':
-		free(rotation_matrix);
-		rotation_matrix = createIdentity4();
-		rotation_matrix[5] = cos(cur_angle);
-		rotation_matrix[6] = -sin(cur_angle);
-		rotation_matrix[9] = sin(cur_angle);
-		rotation_matrix[10] = cos(cur_angle);
-		break;
-	case 'y':
-		free(rotation_matrix);
-		rotation_matrix = createIdentity4();
-		rotation_matrix[0] = cos(cur_angle);
-		rotation_matrix[2] = -sin(cur_angle);
-		rotation_matrix[8] = sin(cur_angle);
-		rotation_matrix[10] = cos(cur_angle);
-		break;
-	case 'z':
-		free(rotation_matrix);
-		rotation_matrix = createIdentity4();
-		rotation_matrix[0] = cos(cur_angle);
-		rotation_matrix[1] = -sin(cur_angle);
-		rotation_matrix[4] = sin(cur_angle);
-		rotation_matrix[5] = cos(cur_angle);
-		break;
-	}
-	return rotation_matrix;
 }
