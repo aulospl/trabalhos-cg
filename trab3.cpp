@@ -5,13 +5,13 @@
 #include <matrixArith.h>
 #include <cmath>
 #include <Model.h>
-
+#include <Camera.h>
 
 using namespace std;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-void processInput(GLFWwindow *window, int *rot_dir, float *scale, char* eixo);
+void processInput(GLFWwindow *window, int *rot_dir, float *scale, char* eixo, Camera &cam);
 
 float* changeRotationsAxis(char axis, float *rotation_matrix);
 
@@ -68,6 +68,12 @@ int main( int argc, char **argv ){
 	// ---------------------------------
 	ShaderProgram prog("shaders/vtx_shader.glsl", "shaders/frag_shader.glsl");
 
+	// set up camera
+	float pos[3] = {0.0, 0.0, 0.0};
+	float dir[3] = {0.0, 0.0, 1.0};
+	float up[3] = {0.0, 1.0, 0.0};
+
+	Camera ourCamera(pos, dir, up);
 
 
 	Model *ourModel;
@@ -90,7 +96,7 @@ int main( int argc, char **argv ){
 	while(!glfwWindowShouldClose(window)){
 		rot_dir = 1;
 		// Processa entrada
-		processInput(window, &rot_dir, &scale, &eixo);
+		processInput(window, &rot_dir, &scale, &eixo, ourCamera);
 
 		if (scale > max_scale){
 			scale = max_scale;
@@ -154,7 +160,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
  * a = velocidade angular
  * rotate = se o catavento gira ou esta parado
  */
-void processInput(GLFWwindow *window, int *rot_dir, float *scale, char *eixo){
+void processInput(GLFWwindow *window, int *rot_dir, float *scale, char *eixo, Camera &cam){
+	float xAxis = 0.0, zAxis = 0.0;
 	if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS){
 		*eixo = 'x';
 	}
@@ -170,7 +177,7 @@ void processInput(GLFWwindow *window, int *rot_dir, float *scale, char *eixo){
 	else if(glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS){
 		*scale = *scale / 1.1;
 	}
-	else if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || 
+	else if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
 			glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS){
 		*rot_dir = -1;
 	}
@@ -180,6 +187,20 @@ void processInput(GLFWwindow *window, int *rot_dir, float *scale, char *eixo){
 	else if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
+	else if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
+		zAxis += 1.0;
+	}
+	else if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
+		xAxis -= 1.0;
+	}
+	else if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
+		zAxis -= 1.0;
+	}
+	else if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
+		xAxis += 1.0;
+	}
+	cam.moveCamera(xAxis, 0.0, zAxis);
+
 }
 
 

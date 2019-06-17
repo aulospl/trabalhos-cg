@@ -16,6 +16,7 @@ Camera::Camera(float CameraPos[3], float CameraFront[3], float CameraUp[3]){
     float *lookPos = addVec3(cameraPos, cameraFront);
     view = lookAt(cameraPos, lookPos, cameraUp);
     free (lookPos);
+    this->projection = createIdentity4();
     DELTA_TIME = true;
 }
 
@@ -81,7 +82,7 @@ void Camera::setZoomLimit(GLfloat MinZoom, GLfloat MaxZoom){
 }
 
 GLfloat Camera::getFieldOfView(){
-    return glm::radians(fov);
+    return (fov*M_PI)/180.0f;
 }
 
 GLfloat Camera::getApectRatio(){
@@ -113,15 +114,15 @@ float* Camera::lookAt(float *cameraPos, float *lookPos, float *up){
     normalizeVec3(Y);
     // normalizeVec3(Z);
     float *ret = createMatrix4(X[0], Y[0], Z[0], -cameraPos[0],
-                            X[1], Y[1], Z[1], -cameraPos[1],
-                            X[2], Y[2], Z[2], -cameraPos[2],
-                            0,    0,    0,    0);
+                               X[1], Y[1], Z[1], -cameraPos[1],
+                               X[2], Y[2], Z[2], -cameraPos[2],
+                               0,    0,    0,    1);
     free(X);
-    free(Y);    
+    free(Y);
     return ret;
 }
 
-glm::mat4 Camera::getPerspective(){
+float *Camera::getPerspective(){
     return projection;
 }
 
@@ -171,7 +172,7 @@ void Camera::processData(){
     free(oldCamera);
     free(walked);
     free(right);
-    
+
 ////*************END CAMERA MOVEMENT***************////
 
 }
@@ -183,11 +184,24 @@ void Camera::setPerspective(GLfloat FOV, GLfloat ASPECT, GLfloat zNear, GLfloat 
     if(!ASPECT){
         ASPECT = aspectRatio;
     }
-    projection = glm::perspective(glm::radians(FOV), ASPECT, zNear, zFar);
+    // projection = glm::perspective(glm::radians(FOV), ASPECT, zNear, zFar);
+
+    // float *Result = createIdentity4();
+    projection[0] = 1.0f / (ASPECT * tan((FOV*M_PI/180.0)/2.0f));
+    projection[5] = 1.0f / (tan((FOV*M_PI/180.0)/2.0f));
+    projection[10] = - (zFar + zNear) / (zFar - zNear);
+    projection[11] = - 1.0f;
+    projection[14] = - (2.0f * zFar * zNear) / (zFar - zNear);
 }
 
 void Camera::setPerspective(GLfloat zNear, GLfloat zFar){
-    projection = glm::perspective(glm::radians(fov), aspectRatio, zNear, zFar);
+    // projection = glm::perspective(glm::radians(fov), aspectRatio, zNear, zFar);
+
+    projection[0] = 1.0f / (this->aspectRatio * tan((this->fov*M_PI/180.0)/2.0f));
+    projection[5] = 1.0f / (tan((this->fov*M_PI/180.0)/2.0f));
+    projection[10] = - (zFar + zNear) / (zFar - zNear);
+    projection[11] = - 1.0f;
+    projection[14] = - (2.0f * zFar * zNear) / (zFar - zNear);
 }
 
 

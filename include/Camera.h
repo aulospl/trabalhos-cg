@@ -4,9 +4,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cmath>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <stdlib.h>
 #include <iostream>
 #include <matrixArith.h>
@@ -35,7 +32,7 @@ class Camera
         GLfloat getApectRatio();
         float *getCameraMatrix();
         float *getLookAtZero();
-        glm::mat4 getPerspective();
+        float *getPerspective();
         void setPerspective(GLfloat FOV, GLfloat ASPECT, GLfloat zNear, GLfloat zFar);
         void setPerspective(GLfloat zNear, GLfloat zFar);
         float *cameraPos, *cameraFront, *cameraUp;
@@ -49,7 +46,7 @@ class Camera
         GLfloat mouseSensitivity = 0.1f;
         GLfloat aspectRatio;
         float *view;
-        glm::mat4 projection;
+        float *projection;
         GLfloat xoffset, yoffset;
         GLfloat pitchLimit = 89.0f, pitch, yaw;
         GLfloat deltaTime, currentFrame, lastFrame;
